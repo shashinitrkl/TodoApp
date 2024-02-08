@@ -2,12 +2,15 @@ from fastapi import APIRouter, Depends, Query, Path, HTTPException
 from starlette import status
 from sqlalchemy.orm import Session
 from typing import Annotated
+from passlib.context import CryptContext
 
 from database import SessionLocal
-from schema import CreateUserRequest
+from schema import CreateUserRequest, UpdateUserRequest
 from models import Users
 
 router = APIRouter()
+
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 def get_db():
     db = SessionLocal()
@@ -54,7 +57,7 @@ async def create_user(db : db_dependency,
                      username = user_request.username,
                      first_name = user_request.first_name,
                      last_name = user_request.last_name,
-                     hashed_password = user_request.password,
+                     hashed_password = bcrypt_context.hash(user_request.password),
                      role = user_request.role,
                      is_active = True,
                      is_deleted = False
@@ -65,17 +68,22 @@ async def create_user(db : db_dependency,
 
 @router.put('/user/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def update_user(db : db_dependency, 
-                      user_request : CreateUserRequest, 
+                      user_request : UpdateUserRequest, 
                       user_id : int = Path(gt=0)):
     
     user = db.query(Users).filter(Users.id == user_id).first()
     if user is None:
         raise HTTPException(status_code=404, detail='user not found')
-    user.username = user_request.username
-    user.first_name = user_request.first_name
-    user.last_name = user_request.last_name
-    user.role = user_request.role
-    user.hashed_password = user_request.password
+    if user_request.username is not None:
+        user.username = user_request.username
+    if user_request.first_name is not None:
+        user.first_name = user_request.first_name
+    if user_request.last_name is not None:
+        user.last_name = user_request.last_name
+    if user_request.role is not None:
+        user.role = user_request.role
+    if user_request.password is not None:
+        user.hashed_password = bcrypt_context.hash(user_request.password)
 
     db.add(user)
     db.commit()

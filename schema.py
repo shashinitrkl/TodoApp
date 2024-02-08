@@ -24,4 +24,15 @@ class CreateUserRequest(BaseModel):
     role :str
 
 
+class UpdateUserRequest(BaseModel):
+    '''
+    pydantic model for validation of request data for creating a user
+    '''
+    email : Optional[str] = None
+    username : Optional[str] = None
+    first_name : Optional[str] = None
+    last_name : Optional[str] = None
+    password : Optional[str] = None
+    role :Optional[str] = None
+
 
