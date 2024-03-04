@@ -105,6 +105,6 @@ async def delete_todo(db : db_dependency,
         raise HTTPException(status_code=404, detail='todo not found')
     if user.is_deleted:
          raise HTTPException(status_code=404, detail='User of this todo is not active')
-    # db.query(Todos).filter(Todos.id==todo_id).delete()
+   
     db.delete(todo)
     db.commit()
