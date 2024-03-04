@@ -72,18 +72,19 @@ async def update_user(db : db_dependency,
                       user_id : int = Path(gt=0)):
     
     user = db.query(Users).filter(Users.id == user_id).first()
-    if user is None:
+    if user is None or user.is_deleted:
         raise HTTPException(status_code=404, detail='user not found')
-    if user_request.username is not None:
-        user.username = user_request.username
-    if user_request.first_name is not None:
-        user.first_name = user_request.first_name
-    if user_request.last_name is not None:
-        user.last_name = user_request.last_name
-    if user_request.role is not None:
-        user.role = user_request.role
-    if user_request.password is not None:
-        user.hashed_password = bcrypt_context.hash(user_request.password)
+    else:    
+        if user_request.username is not None:
+            user.username = user_request.username
+        if user_request.first_name is not None:
+            user.first_name = user_request.first_name
+        if user_request.last_name is not None:
+            user.last_name = user_request.last_name
+        if user_request.role is not None:
+            user.role = user_request.role
+        if user_request.password is not None:
+            user.hashed_password = bcrypt_context.hash(user_request.password)
 
     db.add(user)
     db.commit()
@@ -93,7 +94,7 @@ async def delete_user(db : db_dependency,
                       user_id : int = Path(gt=0)):
     
     user = db.query(Users).filter(Users.id == user_id).first()
-    if user is None:
+    if user is None or user.is_deleted:
         raise HTTPException(status_code=404, detail='user not found')
     user.is_active = False
     user.is_deleted = True
