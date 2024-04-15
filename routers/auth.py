@@ -8,6 +8,10 @@ from database import SessionLocal
 from schema import CreateUserRequest, UpdateUserRequest
 from models import Users
 
+from services.auth_service import AuthService
+
+
+
 router = APIRouter()
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -21,17 +25,13 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
+auth_service = AuthService()
+
 @router.get('/users', status_code=status.HTTP_200_OK)
 async def get_all_users(db : db_dependency):
-    
-    active_users = []
-    users = db.query(Users).all()
+    response = auth_service.all_users(db)
 
-    for user in users:
-        if user.is_active == True:
-            active_users.append(user)
-
-    return active_users
+    return response
 
 @router.get('/deleted-users',status_code=status.HTTP_200_OK)
 async def get_deleted_users(db : db_dependency):

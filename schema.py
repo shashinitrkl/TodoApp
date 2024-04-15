@@ -16,7 +16,7 @@ class CreateUserRequest(BaseModel):
     '''
     pydantic model for validation of request data for creating a user
     '''
-    email : str
+    email : str 
     username : str
     first_name : str
     last_name : str

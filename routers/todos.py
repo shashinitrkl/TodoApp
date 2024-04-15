@@ -64,7 +64,6 @@ async def todos_of_deleted_users(db : db_dependency):
         deleted_user_todos.append(user_todos)
     return deleted_user_todos
 
-
 @router.post('/todo', status_code=status.HTTP_201_CREATED)
 async def create_todo(db : db_dependency,
                       todo_request : CreateTodoRequest):
